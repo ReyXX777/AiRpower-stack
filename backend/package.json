@@ -1,0 +1,17 @@
+{
+    "name": "airpower",
+    "version": "1.0.0",
+    "scripts": {
+      "start": "node backend/server.js",
+      "dev": "concurrently \"nodemon backend/server.js\" \"npm run start --prefix frontend\""
+    },
+    "dependencies": {
+      "express": "^4.17.1",
+      "mongoose": "^5.13.2"
+    },
+    "devDependencies": {
+      "nodemon": "^2.0.12",
+      "concurrently": "^6.0.0"
+    }
+  }
+  
