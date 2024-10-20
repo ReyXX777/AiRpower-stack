@@ -1,0 +1,16 @@
+{
+    "name": "airpower-frontend",
+    "version": "1.0.0",
+    "description": "Frontend for AiRpower - Power Consumption Optimization",
+    "main": "index.html",
+    "scripts": {
+      "start": "live-server --port=3000"
+    },
+    "dependencies": {},
+    "devDependencies": {
+      "live-server": "^1.2.1"
+    },
+    "author": "",
+    "license": "ISC"
+  }
+  

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AiRpower - Power Consumption Optimization</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header Section -->
+    <header>
+        <h1>AiRpower</h1>
+        <nav>
+            <ul>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#overview">Project Overview</a></li>
+                <li><a href="#team">Team</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Main Content Section -->
+    <main>
+        <!-- Project Overview Section -->
+        <section id="overview">
+            <h2>Project Overview</h2>
+            <p>The AiRpower project is designed to help users optimize their electricity usage by analyzing real-time data and predicting budget outcomes. Enter your budget to start:</p>
+            <label for="budget-input">Enter your Monthly Budget:</label>
+            <input type="number" id="budget-input" placeholder="Enter budget in $">
+            <button id="predict-btn">Predict</button>
+            <p id="prediction-result"></p>
+        </section>
+
+        <!-- Data Collection Section -->
+        <section id="data-collection">
+            <h2>Data Collection</h2>
+            <p>We collect real-time data from electric meters via IoT devices to ensure accurate monitoring of electricity consumption.</p>
+            <div class="placeholder">
+            <img src="data collection 1.png" alt="IoT data collection image" class="data-image">
+        </div>
+
+        </section>
+
+        <!-- Data Analysis Section -->
+        <section id="data-analysis">
+            <h2>Data Analysis</h2>
+            <p>Data is analyzed to forecast future power consumption using advanced machine learning algorithms.</p>
+            <div class="placeholder">
+                <img src="data-analysis1.png" alt="Data analysis process" class="data-image">
+        </div>
+        </section>
+
+        <!-- Budget Prediction Section -->
+        <section id="budget-prediction">
+            <h2>Budget Prediction</h2>
+            <p>Based on the input budget, the system predicts if the user will exceed their budget or save on electricity costs.</p>
+            <div class="placeholder">
+                <img src="budget.png" alt="Budget prediction image" class="prediction-image">
+            </div>
+        </section>
+
+        <!-- Recommendations Section -->
+        <section id="recommendations">
+            <h2>Recommendations</h2>
+            <p>Get personalized recommendations on how to optimize your electricity usage based on your power consumption data.</p>
+            <div class="placeholder">
+                <img src="recommendation.png" alt="Budget prediction image" class="prediction-image">
+            </div>
+        </section>
+    </main>
+
+    <!-- Contact Form Section -->
+    <section id="contact">
+        <h2>Contact Us</h2>
+        <form id="contact-form">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+            <label for="message">Message:</label>
+            <textarea id="message" name="message" required></textarea>
+            <button type="submit">Send</button>
+        </form>
+    </section>
+
+    <script src="script.js"></script>
+</body>
+</html>
