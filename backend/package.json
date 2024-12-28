@@ -1,17 +1,44 @@
 {
-    "name": "airpower",
-    "version": "1.0.0",
-    "scripts": {
-      "start": "node backend/server.js",
-      "dev": "concurrently \"nodemon backend/server.js\" \"npm run start --prefix frontend\""
-    },
-    "dependencies": {
-      "express": "^4.17.1",
-      "mongoose": "^5.13.2"
-    },
-    "devDependencies": {
-      "nodemon": "^2.0.12",
-      "concurrently": "^6.0.0"
-    }
-  }
-  
+  "name": "airpower",
+  "version": "1.0.0",
+  "description": "AiRpower // 2024 - A platform to forecast power consumption based on user-defined budgets using IoT, real-time data analysis, and machine learning.",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "concurrently \"nodemon backend/server.js\" \"npm run start --prefix frontend\"",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint backend",
+    "build": "cd frontend && npm install && npm run build"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "mongoose": "^5.13.2",
+    "jsonwebtoken": "^8.5.1",
+    "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
+    "bcryptjs": "^2.4.3",
+    "axios": "^0.21.1",
+    "hadoop": "^0.1.0",
+    "tensorflow": "^2.7.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.12",
+    "concurrently": "^6.0.0",
+    "eslint": "^7.32.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.24.2"
+  },
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
+  },
+  "keywords": [
+    "IoT",
+    "power consumption",
+    "forecasting",
+    "machine learning",
+    "real-time data"
+  ],
+  "author": "Your Name <your.email@example.com>",
+  "license": "MIT"
+}
