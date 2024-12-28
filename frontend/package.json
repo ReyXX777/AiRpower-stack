@@ -1,16 +1,38 @@
 {
-    "name": "airpower-frontend",
-    "version": "1.0.0",
-    "description": "Frontend for AiRpower - Power Consumption Optimization",
-    "main": "index.html",
-    "scripts": {
-      "start": "live-server --port=3000"
-    },
-    "dependencies": {},
-    "devDependencies": {
-      "live-server": "^1.2.1"
-    },
-    "author": "",
-    "license": "ISC"
-  }
-  
+  "name": "airpower-frontend",
+  "version": "1.0.0",
+  "description": "Frontend for AiRpower - Power Consumption Optimization",
+  "main": "index.html",
+  "scripts": {
+    "start": "live-server --port=3000",
+    "build": "echo 'No build step required for static frontend.'",
+    "lint": "eslint js/",
+    "test": "echo 'Error: no test specified' && exit 1"
+  },
+  "dependencies": {
+    "axios": "^0.21.1"
+  },
+  "devDependencies": {
+    "live-server": "^1.2.1",
+    "eslint": "^7.32.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.24.2"
+  },
+  "author": "Your Name <your.email@example.com>",
+  "license": "ISC",
+  "keywords": [
+    "power consumption",
+    "IoT",
+    "forecasting",
+    "machine learning",
+    "frontend"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/airpower-frontend.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/airpower-frontend/issues"
+  },
+  "homepage": "https://github.com/yourusername/airpower-frontend#readme"
+}
