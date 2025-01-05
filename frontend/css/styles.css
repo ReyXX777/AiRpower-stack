@@ -5,35 +5,52 @@
     box-sizing: border-box;
 }
 
-/* Global Styles */
-body {
-    font-family: Arial, sans-serif;
-    line-height: 1.6;
-    background-color: #f4f4f4;
-    padding: 20px;
-    color: #333;
+/* Variables */
+:root {
+    --primary-color: #333;
+    --secondary-color: #007bff;
+    --background-color: #f4f4f4;
+    --text-color: #333;
+    --light-color: #f9f9f9;
+    --font-family: 'Arial', sans-serif;
+    --border-radius: 10px;
+    --shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+/* Global Styles */
+body {
+    font-family: var(--font-family);
+    line-height: 1.6;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    padding: 20px;
+}
+
+/* Header */
 header {
-    background-color: #333;
+    background-color: var(--primary-color);
     color: #fff;
     padding: 20px;
     text-align: center;
+    border-radius: var(--border-radius);
 }
 
 header h1 {
-    margin-bottom: 10px;
     font-size: 2.5em;
+    margin-bottom: 10px;
 }
 
 nav ul {
     list-style: none;
     padding: 0;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
 nav ul li {
     display: inline;
-    margin: 0 15px;
 }
 
 nav ul li a {
@@ -42,17 +59,19 @@ nav ul li a {
     font-weight: bold;
 }
 
-nav ul li a:hover {
+nav ul li a:hover,
+nav ul li a:focus {
     text-decoration: underline;
+    outline: none;
 }
 
-/* Main Content Styles */
+/* Main Content */
 main {
     margin-top: 30px;
 }
 
 h2 {
-    color: #333;
+    color: var(--text-color);
     margin-bottom: 10px;
     font-size: 1.8em;
 }
@@ -61,8 +80,8 @@ section {
     background-color: #fff;
     padding: 20px;
     margin-bottom: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
 }
 
 /* Form Styles */
@@ -80,48 +99,47 @@ section {
     display: block;
     width: 100%;
     padding: 10px;
-    background-color: #333;
+    background-color: var(--primary-color);
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     font-size: 1em;
+    transition: background-color 0.3s ease;
 }
 
-#contact-form button:hover {
+#contact-form button:hover,
+#contact-form button:focus {
     background-color: #555;
+    outline: none;
 }
 
-/* Data Collection, Analysis, and Prediction Image Styles */
+/* Image Styles */
 .data-image,
 .prediction-image {
     width: 100%;
     max-width: 600px;
     height: auto;
-    display: block;
-    margin: 0 auto;
+    margin: 10px auto;
     border: 1px solid #ddd;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-top: 10px;
+    box-shadow: var(--shadow);
 }
 
-/* Placeholder Styling */
+/* Placeholder */
 .placeholder {
     background-color: #e0e0e0;
     color: #666;
-    width: 100%;
     height: 300px;
-    text-align: center;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 10px;
+    border-radius: var(--border-radius);
     margin-top: 20px;
     font-size: 1.2em;
 }
 
-/* Budget Input Styles */
+/* Budget Input */
 #budget-input {
     width: 100%;
     padding: 10px;
@@ -132,36 +150,41 @@ section {
 }
 
 #predict-btn {
-    padding: 10px 20px;
-    background-color: #007bff;
+    width: 100%;
+    padding: 10px;
+    background-color: var(--secondary-color);
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     font-size: 1em;
+    transition: background-color 0.3s ease;
 }
 
-#predict-btn:hover {
+#predict-btn:hover,
+#predict-btn:focus {
     background-color: #0056b3;
+    outline: none;
 }
 
 #prediction-result {
     margin-top: 10px;
     font-size: 1.2em;
-    color: #333;
+    color: var(--text-color);
     text-align: center;
 }
 
-/* Recommendation Section Styles */
+/* Recommendation Section */
 #recommendation-section {
-    background-color: #f9f9f9;
+    background-color: var(--light-color);
     padding: 20px;
-    border-radius: 10px;
+    border-radius: var(--border-radius);
     margin-top: 20px;
+    box-shadow: var(--shadow);
 }
 
 #recommendation-section h3 {
-    color: #333;
+    color: var(--text-color);
     margin-bottom: 10px;
     font-size: 1.5em;
 }
@@ -182,9 +205,9 @@ section {
         font-size: 2em;
     }
 
-    nav ul li {
-        display: block;
-        margin: 5px 0;
+    nav ul {
+        flex-direction: column;
+        align-items: center;
     }
 
     .data-image,
