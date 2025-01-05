@@ -12,19 +12,19 @@ class DataController {
 
       // Validate input
       if (!name || !data) {
-        return next(createError(400, 'Name and data are required'));
+        return next(createError(400, 'Name and data fields are required'));
       }
 
-      const newdata = await Data.create({
+      const newData = await Data.create({
         name,
         description,
         data,
         userId,
       });
 
-      res.status(201).json({ message: 'Data created successfully', data: newdata });
+      res.status(201).json({ message: 'Data created successfully', data: newData });
     } catch (error) {
-      next(createError(400, error.message));
+      next(createError(500, error.message || 'Error creating data entry'));
     }
   }
 
@@ -39,11 +39,11 @@ class DataController {
         return next(createError(401, 'Unauthorized'));
       }
 
-      const data = await Data.find({ userId });
+      const data = await Data.find({ userId }).sort({ createdAt: -1 });
 
       res.status(200).json({ data });
     } catch (error) {
-      next(createError(500, 'Error fetching data'));
+      next(createError(500, error.message || 'Error fetching data entries'));
     }
   }
 
@@ -59,15 +59,15 @@ class DataController {
         return next(createError(401, 'Unauthorized'));
       }
 
-      const data = await Data.findOne({ _id: dataId, userId });
+      const dataEntry = await Data.findOne({ _id: dataId, userId });
 
-      if (!data) {
-        return next(createError(404, 'Data not found'));
+      if (!dataEntry) {
+        return next(createError(404, 'Data entry not found'));
       }
 
-      res.status(200).json({ data });
+      res.status(200).json({ data: dataEntry });
     } catch (error) {
-      next(createError(500, 'Error fetching data'));
+      next(createError(500, error.message || 'Error fetching data entry'));
     }
   }
 
@@ -91,12 +91,12 @@ class DataController {
       );
 
       if (!updatedData) {
-        return next(createError(404, 'Data not found'));
+        return next(createError(404, 'Data entry not found'));
       }
 
       res.status(200).json({ message: 'Data updated successfully', data: updatedData });
     } catch (error) {
-      next(createError(500, 'Error updating data'));
+      next(createError(500, error.message || 'Error updating data entry'));
     }
   }
 
@@ -115,12 +115,12 @@ class DataController {
       const deletedData = await Data.findOneAndDelete({ _id: dataId, userId });
 
       if (!deletedData) {
-        return next(createError(404, 'Data not found'));
+        return next(createError(404, 'Data entry not found'));
       }
 
       res.status(200).json({ message: 'Data deleted successfully' });
     } catch (error) {
-      next(createError(500, 'Error deleting data'));
+      next(createError(500, error.message || 'Error deleting data entry'));
     }
   }
 }
