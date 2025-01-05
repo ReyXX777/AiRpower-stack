@@ -10,14 +10,18 @@ class RecommendationController {
     try {
       const { userId } = req.user;
 
-      // Fetch the user's power consumption data
-      const data = await Data.find({ userId });
-
-      if (!data || data.length === 0) {
-        return next(createError(404, 'No data found for recommendations'));
+      if (!userId) {
+        return next(createError(401, 'Unauthorized'));
       }
 
-      // Process the data to generate personalized recommendations
+      // Fetch the user's data
+      const data = await Data.find({ userId }).sort({ createdAt: -1 });
+
+      if (!data || data.length === 0) {
+        return next(createError(404, 'No data found for generating recommendations'));
+      }
+
+      // Generate personalized recommendations
       const recommendations = generateRecommendations(data);
 
       res.status(200).json({
@@ -25,7 +29,7 @@ class RecommendationController {
         recommendations,
       });
     } catch (error) {
-      next(createError(500, 'Error generating recommendations'));
+      next(createError(500, error.message || 'Error generating recommendations'));
     }
   }
 
@@ -36,6 +40,10 @@ class RecommendationController {
     try {
       const { userId } = req.user;
       const { title, details } = req.body;
+
+      if (!userId) {
+        return next(createError(401, 'Unauthorized'));
+      }
 
       // Validate input
       if (!title || !details) {
@@ -53,7 +61,7 @@ class RecommendationController {
         recommendation: newRecommendation,
       });
     } catch (error) {
-      next(createError(500, 'Error saving recommendation'));
+      next(createError(500, error.message || 'Error saving recommendation'));
     }
   }
 
@@ -64,15 +72,22 @@ class RecommendationController {
     try {
       const { userId } = req.user;
 
-      const savedRecommendations = await Recommendation.find({ userId });
+      if (!userId) {
+        return next(createError(401, 'Unauthorized'));
+      }
+
+      const savedRecommendations = await Recommendation.find({ userId }).sort({ createdAt: -1 });
 
       if (!savedRecommendations || savedRecommendations.length === 0) {
         return next(createError(404, 'No saved recommendations found'));
       }
 
-      res.status(200).json({ recommendations: savedRecommendations });
+      res.status(200).json({
+        message: 'Saved recommendations retrieved successfully',
+        recommendations: savedRecommendations,
+      });
     } catch (error) {
-      next(createError(500, 'Error fetching saved recommendations'));
+      next(createError(500, error.message || 'Error fetching saved recommendations'));
     }
   }
 
@@ -83,6 +98,10 @@ class RecommendationController {
     try {
       const { recommendationId } = req.params;
       const { userId } = req.user;
+
+      if (!userId) {
+        return next(createError(401, 'Unauthorized'));
+      }
 
       const deletedRecommendation = await Recommendation.findOneAndDelete({
         _id: recommendationId,
@@ -97,7 +116,7 @@ class RecommendationController {
         message: 'Recommendation deleted successfully',
       });
     } catch (error) {
-      next(createError(500, 'Error deleting recommendation'));
+      next(createError(500, error.message || 'Error deleting recommendation'));
     }
   }
 }
