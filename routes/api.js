@@ -2,9 +2,11 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const router = express.Router();
+require('dotenv').config(); // To load environment variables from a .env file
 
-// Define MongoDB URI and connect to the database
-const mongoURI = 'mongodb://localhost:27017/yourDatabaseName'; // Replace with your MongoDB URI
+// Define MongoDB URI and connect to the database from environment variables
+const mongoURI = process.env.MONGO_URI || 'mongodb://localhost:27017/yourDatabaseName'; // Default to localhost if no environment variable is set
+
 mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log('MongoDB connected'))
     .catch(err => console.error('MongoDB connection error:', err));
@@ -21,6 +23,9 @@ const Item = mongoose.model('Item', itemSchema);
 router.get('/items', async (req, res) => {
     try {
         const items = await Item.find();
+        if (items.length === 0) {
+            return res.status(404).json({ message: 'No items found' });
+        }
         res.status(200).json(items);
     } catch (error) {
         console.error('Error fetching items:', error);
@@ -50,6 +55,10 @@ router.post('/items', async (req, res) => {
 router.put('/items/:id', async (req, res) => {
     const { id } = req.params;
     const { name, description } = req.body;
+
+    if (!name || !description) {
+        return res.status(400).json({ message: 'Name and description are required' });
+    }
 
     try {
         const updatedItem = await Item.findByIdAndUpdate(
@@ -85,6 +94,13 @@ router.delete('/items/:id', async (req, res) => {
         console.error('Error deleting item:', error);
         res.status(500).json({ message: 'Error deleting item' });
     }
+});
+
+// Handle database disconnection gracefully when the server shuts down
+process.on('SIGINT', async () => {
+    await mongoose.connection.close();
+    console.log('MongoDB connection closed');
+    process.exit(0);
 });
 
 module.exports = router;
