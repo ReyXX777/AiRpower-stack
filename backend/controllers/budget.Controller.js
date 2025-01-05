@@ -10,17 +10,11 @@ class BudgetController {
       const { name, description, amount, userId } = req.body;
 
       // Validate input
-      if (!name || !amount || !userId) {
-        return next(createError(400, 'Name, amount, and userId are required'));
+      if (!name || typeof amount !== 'number' || !userId) {
+        return next(createError(400, 'Name, valid amount, and userId are required'));
       }
 
-      const budget = await Budget.create({
-        name,
-        description,
-        amount,
-        userId,
-      });
-
+      const budget = await Budget.create({ name, description, amount, userId });
       res.status(201).json({ message: 'Budget created successfully', budget });
     } catch (error) {
       next(createError(400, error.message));
@@ -38,8 +32,7 @@ class BudgetController {
         return next(createError(401, 'Unauthorized'));
       }
 
-      const budgets = await Budget.find({ userId });
-
+      const budgets = await Budget.find({ userId }).sort({ createdAt: -1 });
       res.status(200).json({ budgets });
     } catch (error) {
       next(createError(500, 'Error fetching budgets'));
@@ -66,7 +59,7 @@ class BudgetController {
 
       res.status(200).json({ budget });
     } catch (error) {
-      next(createError(500, 'Error fetching budget'));
+      next(createError(500, error.message || 'Error fetching budget'));
     }
   }
 
@@ -95,7 +88,7 @@ class BudgetController {
 
       res.status(200).json({ message: 'Budget updated successfully', budget: updatedBudget });
     } catch (error) {
-      next(createError(500, 'Error updating budget'));
+      next(createError(500, error.message || 'Error updating budget'));
     }
   }
 
@@ -119,7 +112,7 @@ class BudgetController {
 
       res.status(200).json({ message: 'Budget deleted successfully' });
     } catch (error) {
-      next(createError(500, 'Error deleting budget'));
+      next(createError(500, error.message || 'Error deleting budget'));
     }
   }
 }
