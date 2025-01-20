@@ -131,3 +131,39 @@ function Credentials (name, pass) {
   this.name = name
   this.pass = pass
 }
+
+/**
+ * Middleware to enforce basic authentication.
+ * @public
+ */
+
+function enforceBasicAuth(req, res, next) {
+  const credentials = auth(req);
+
+  if (!credentials || !validateCredentials(credentials)) {
+    res.set('WWW-Authenticate', 'Basic realm="Authorization Required"');
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
+  req.user = credentials;
+  next();
+}
+
+/**
+ * Validate credentials against a predefined set of valid credentials.
+ * @private
+ */
+
+function validateCredentials(credentials) {
+  const validCredentials = {
+    name: process.env.BASIC_AUTH_USER || 'admin',
+    pass: process.env.BASIC_AUTH_PASS || 'password',
+  };
+
+  return (
+    credentials.name === validCredentials.name &&
+    credentials.pass === validCredentials.pass
+  );
+}
+
+module.exports.enforceBasicAuth = enforceBasicAuth;
