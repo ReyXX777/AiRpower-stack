@@ -39,21 +39,22 @@ class RecommendationController {
   static async saveRecommendation(req, res, next) {
     try {
       const { userId } = req.user;
-      const { title, details } = req.body;
+      const { title, details, priority } = req.body;
 
       if (!userId) {
         return next(createError(401, 'Unauthorized'));
       }
 
       // Validate input
-      if (!title || !details) {
-        return next(createError(400, 'Title and details are required'));
+      if (!title || !details || !priority) {
+        return next(createError(400, 'Title, details, and priority are required'));
       }
 
       const newRecommendation = await Recommendation.create({
         userId,
         title,
         details,
+        priority,
       });
 
       res.status(201).json({
@@ -117,6 +118,65 @@ class RecommendationController {
       });
     } catch (error) {
       next(createError(500, error.message || 'Error deleting recommendation'));
+    }
+  }
+
+  /**
+   * Update the priority of a saved recommendation
+   */
+  static async updateRecommendationPriority(req, res, next) {
+    try {
+      const { recommendationId } = req.params;
+      const { userId } = req.user;
+      const { priority } = req.body;
+
+      if (!userId) {
+        return next(createError(401, 'Unauthorized'));
+      }
+
+      const updatedRecommendation = await Recommendation.findOneAndUpdate(
+        { _id: recommendationId, userId },
+        { priority },
+        { new: true, runValidators: true }
+      );
+
+      if (!updatedRecommendation) {
+        return next(createError(404, 'Recommendation not found'));
+      }
+
+      res.status(200).json({
+        message: 'Recommendation priority updated successfully',
+        recommendation: updatedRecommendation,
+      });
+    } catch (error) {
+      next(createError(500, error.message || 'Error updating recommendation priority'));
+    }
+  }
+
+  /**
+   * Get recommendations by priority level
+   */
+  static async getRecommendationsByPriority(req, res, next) {
+    try {
+      const { userId } = req.user;
+      const { priority } = req.query;
+
+      if (!userId) {
+        return next(createError(401, 'Unauthorized'));
+      }
+
+      const recommendations = await Recommendation.find({ userId, priority }).sort({ createdAt: -1 });
+
+      if (!recommendations || recommendations.length === 0) {
+        return next(createError(404, 'No recommendations found for the specified priority'));
+      }
+
+      res.status(200).json({
+        message: 'Recommendations retrieved successfully',
+        recommendations,
+      });
+    } catch (error) {
+      next(createError(500, error.message || 'Error fetching recommendations by priority'));
     }
   }
 }
