@@ -8,7 +8,7 @@ class DataController {
   static async createData(req, res, next) {
     try {
       const { userId } = req.user;
-      const { name, description, data } = req.body;
+      const { name, description, data, tags } = req.body;
 
       // Validate input
       if (!name || !data) {
@@ -19,6 +19,7 @@ class DataController {
         name,
         description,
         data,
+        tags,
         userId,
       });
 
@@ -78,7 +79,7 @@ class DataController {
     try {
       const { dataId } = req.params;
       const { userId } = req.user;
-      const { name, description, data } = req.body;
+      const { name, description, data, tags } = req.body;
 
       if (!userId) {
         return next(createError(401, 'Unauthorized'));
@@ -86,7 +87,7 @@ class DataController {
 
       const updatedData = await Data.findOneAndUpdate(
         { _id: dataId, userId },
-        { name, description, data },
+        { name, description, data, tags },
         { new: true, runValidators: true }
       );
 
@@ -121,6 +122,58 @@ class DataController {
       res.status(200).json({ message: 'Data deleted successfully' });
     } catch (error) {
       next(createError(500, error.message || 'Error deleting data entry'));
+    }
+  }
+
+  /**
+   * Get data entries by tags
+   */
+  static async getDataByTags(req, res, next) {
+    try {
+      const { userId } = req.user;
+      const { tags } = req.query;
+
+      if (!userId) {
+        return next(createError(401, 'Unauthorized'));
+      }
+
+      const dataEntries = await Data.find({ userId, tags: { $in: tags.split(',') } });
+
+      if (!dataEntries || dataEntries.length === 0) {
+        return next(createError(404, 'No data entries found with the specified tags'));
+      }
+
+      res.status(200).json({ data: dataEntries });
+    } catch (error) {
+      next(createError(500, error.message || 'Error fetching data entries by tags'));
+    }
+  }
+
+  /**
+   * Archive a data entry by ID
+   */
+  static async archiveData(req, res, next) {
+    try {
+      const { dataId } = req.params;
+      const { userId } = req.user;
+
+      if (!userId) {
+        return next(createError(401, 'Unauthorized'));
+      }
+
+      const archivedData = await Data.findOneAndUpdate(
+        { _id: dataId, userId },
+        { isArchived: true },
+        { new: true }
+      );
+
+      if (!archivedData) {
+        return next(createError(404, 'Data entry not found'));
+      }
+
+      res.status(200).json({ message: 'Data archived successfully', data: archivedData });
+    } catch (error) {
+      next(createError(500, error.message || 'Error archiving data entry'));
     }
   }
 }
