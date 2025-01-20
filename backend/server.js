@@ -8,6 +8,9 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const morgan = require('morgan');
 const compression = require('compression'); // To optimize performance
+const swaggerUi = require('swagger-ui-express'); // For API documentation
+const YAML = require('yamljs'); // For loading Swagger YAML file
+const { authenticateToken } = require('./middleware/auth'); // Custom authentication middleware
 
 // Load environment variables
 dotenv.config();
@@ -64,8 +67,12 @@ connectDB();
 const frontendPath = path.join(__dirname, '../frontend/dist');
 app.use(express.static(frontendPath));
 
+// API Documentation with Swagger
+const swaggerDocument = YAML.load(path.join(__dirname, './swagger.yaml'));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 // API Routes
-app.use('/api', apiRoutes);
+app.use('/api', authenticateToken, apiRoutes); // Protect API routes with authentication
 
 // Fallback to `index.html` for SPA frontend
 app.get('*', (req, res) => {
