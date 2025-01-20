@@ -51,6 +51,35 @@ const authenticateToken = async (req, res, next) => {
   }
 };
 
+/**
+ * Middleware to check if the user has a specific role
+ */
+const authorizeRole = (requiredRole) => {
+  return (req, res, next) => {
+    if (!req.user || req.user.role !== requiredRole) {
+      return res.status(403).json({ message: 'Access denied. Insufficient permissions.' });
+    }
+    next();
+  };
+};
+
+/**
+ * Middleware to log user activity
+ */
+const logUserActivity = async (req, res, next) => {
+  try {
+    if (req.user) {
+      console.log(`User ${req.user.id} accessed ${req.method} ${req.originalUrl}`);
+    }
+    next();
+  } catch (error) {
+    console.error('Error logging user activity:', error);
+    next();
+  }
+};
+
 module.exports = {
   authenticateToken,
+  authorizeRole,
+  logUserActivity,
 };
