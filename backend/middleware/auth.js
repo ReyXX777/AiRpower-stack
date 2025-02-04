@@ -1,59 +1,59 @@
 const jwt = require('jsonwebtoken');
 const { SECRET_KEY } = require('../config');
 const { User } = require('../models');
+const { redisClient } = require('../config/redis'); // Import Redis client
 
 const authenticateToken = async (req, res, next) => {
   try {
-    // Extract the token from the Authorization header
     const authHeader = req.headers['authorization'];
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({ message: 'Access denied. Missing or invalid authorization header.' });
     }
 
-    const token = authHeader.split(' ')[1]; // Format: "Bearer <token>"
+    const token = authHeader.split(' ')[1];
 
-    // Verify the token and decode its payload
+    // Check token in Redis cache first
+    const cachedUser = await redisClient.get(`user:${token}`);
+    if (cachedUser) {
+      req.user = JSON.parse(cachedUser);
+      return next();
+    }
+
     const decoded = jwt.verify(token, SECRET_KEY);
-
-    // Fetch the user from the database using the decoded userId
     const user = await User.findById(decoded.userId);
 
     if (!user) {
       return res.status(401).json({ message: 'Invalid user. User not found.' });
     }
 
-    // Check if the user is active (optional, for added security)
     if (user.status !== 'active') {
       return res.status(403).json({ message: 'Account inactive. Please contact support.' });
     }
 
-    // Attach the user object (excluding sensitive fields) to the request
     req.user = {
       id: user._id,
       email: user.email,
-      role: user.role, // If roles are implemented
+      role: user.role,
     };
 
-    // Proceed to the next middleware/route
+    // Store user in Redis cache for faster subsequent requests
+    await redisClient.set(`user:${token}`, JSON.stringify(req.user), 'EX', 3600); // Cache for 1 hour
+
     next();
   } catch (error) {
     console.error('Token verification error:', error);
 
-    // Handle specific JWT errors
     if (error.name === 'JsonWebTokenError') {
       return res.status(401).json({ message: 'Invalid token. Malformed or tampered token.' });
     } else if (error.name === 'TokenExpiredError') {
       return res.status(401).json({ message: 'Token expired. Please log in again.' });
     }
 
-    // Handle other errors
     return res.status(500).json({ message: 'Internal server error during token verification.' });
   }
 };
 
-/**
- * Middleware to check if the user has a specific role
- */
+
 const authorizeRole = (requiredRole) => {
   return (req, res, next) => {
     if (!req.user || req.user.role !== requiredRole) {
@@ -63,13 +63,12 @@ const authorizeRole = (requiredRole) => {
   };
 };
 
-/**
- * Middleware to log user activity
- */
 const logUserActivity = async (req, res, next) => {
   try {
     if (req.user) {
       console.log(`User ${req.user.id} accessed ${req.method} ${req.originalUrl}`);
+      // Store activity in a database or log file for auditing
+      // Example: await ActivityLog.create({ userId: req.user.id, action: `${req.method} ${req.originalUrl}` });
     }
     next();
   } catch (error) {
