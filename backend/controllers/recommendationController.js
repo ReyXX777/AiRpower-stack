@@ -179,6 +179,63 @@ class RecommendationController {
       next(createError(500, error.message || 'Error fetching recommendations by priority'));
     }
   }
+
+  /**
+   * Mark a recommendation as completed
+   */
+  static async markRecommendationAsCompleted(req, res, next) {
+    try {
+      const { recommendationId } = req.params;
+      const { userId } = req.user;
+
+      if (!userId) {
+        return next(createError(401, 'Unauthorized'));
+      }
+
+      const updatedRecommendation = await Recommendation.findOneAndUpdate(
+        { _id: recommendationId, userId },
+        { isCompleted: true },
+        { new: true }
+      );
+
+      if (!updatedRecommendation) {
+        return next(createError(404, 'Recommendation not found'));
+      }
+
+      res.status(200).json({
+        message: 'Recommendation marked as completed',
+        recommendation: updatedRecommendation,
+      });
+    } catch (error) {
+      next(createError(500, error.message || 'Error marking recommendation as completed'));
+    }
+  }
+
+  /**
+   * Get completed recommendations for the user
+   */
+  static async getCompletedRecommendations(req, res, next) {
+    try {
+      const { userId } = req.user;
+
+      if (!userId) {
+        return next(createError(401, 'Unauthorized'));
+      }
+
+      const completedRecommendations = await Recommendation.find({ userId, isCompleted: true }).sort({ createdAt: -1 });
+
+      if (!completedRecommendations || completedRecommendations.length === 0) {
+        return next(createError(404, 'No completed recommendations found'));
+      }
+
+      res.status(200).json({
+        message: 'Completed recommendations retrieved successfully',
+        recommendations: completedRecommendations,
+      });
+    } catch (error) {
+      next(createError(500, error.message || 'Error fetching completed recommendations'));
+    }
+  }
 }
 
 module.exports = RecommendationController;
