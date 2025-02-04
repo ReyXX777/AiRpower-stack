@@ -1,5 +1,7 @@
 // Import required modules
 const mongoose = require('mongoose');
+const express = require('express'); // Added Express for creating a server
+const cors = require('cors'); // Added CORS for handling cross-origin requests
 
 // MongoDB connection URI (replace with your actual URI or use environment variables)
 const DB_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/airpower';
@@ -8,25 +10,21 @@ const DB_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/airpower';
 const options = {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  // Optional: Additional connection options for better error handling and functionality
-  serverSelectionTimeoutMS: 5000, // Timeout after 5 seconds if unable to connect to the server
-  socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
-  autoIndex: true, // Automatically build indexes (set false in production for performance)
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 45000,
+  autoIndex: true,
 };
 
 // Function to connect to the MongoDB database
 const connectDB = async () => {
   try {
-    // Establishing connection
     await mongoose.connect(DB_URI, options);
     console.log(`MongoDB connected successfully to ${DB_URI}`);
   } catch (err) {
-    // Enhanced error handling
     console.error('Error connecting to MongoDB:', err.message);
-    process.exit(1); // Exit process with failure
+    process.exit(1);
   }
 
-  // Additional event listeners for monitoring
   mongoose.connection.on('connected', () => {
     console.log('Mongoose connected to the database');
   });
@@ -39,7 +37,6 @@ const connectDB = async () => {
     console.log('Mongoose disconnected from the database');
   });
 
-  // Graceful shutdown handling
   process.on('SIGINT', async () => {
     await mongoose.connection.close();
     console.log('Mongoose connection closed on application termination');
@@ -47,5 +44,23 @@ const connectDB = async () => {
   });
 };
 
-// Export the connection function
-module.exports = connectDB;
+// Initialize Express app
+const app = express();
+
+// Middleware
+app.use(cors()); // Enable CORS for all routes
+app.use(express.json()); // Parse JSON request bodies
+
+// Example route
+app.get('/', (req, res) => {
+  res.send('Welcome to the AirPower API!');
+});
+
+// Start the server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
+
+// Export the connection function and app
+module.exports = { connectDB, app };
