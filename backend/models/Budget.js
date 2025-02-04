@@ -37,25 +37,42 @@ const BudgetSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  dueDate: { // Added dueDate field
+    type: Date,
+    required: false, // Not strictly required, can be null
+  },
+  recurring: { // Added recurring field
+    type: Boolean,
+    default: false,
+  },
 });
 
-// Middleware to update the 'updatedAt' field before saving
 BudgetSchema.pre('save', function (next) {
   this.updatedAt = Date.now();
   next();
 });
 
-// Static method to find budgets by category
 BudgetSchema.statics.findByCategory = function (userId, category) {
   return this.find({ userId, category, isArchived: false });
 };
 
-// Instance method to archive a budget
 BudgetSchema.methods.archive = function () {
   this.isArchived = true;
   return this.save();
 };
 
+// Virtual to calculate remaining budget if dueDate is in the future
+BudgetSchema.virtual('remainingBudget').get(function() {
+    if (this.dueDate && this.dueDate > Date.now() && !this.isArchived) {
+        const timeDiff = this.dueDate.getTime() - Date.now();
+        const daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
+        // Example: Distribute the budget evenly over the remaining days
+        return this.amount / daysLeft; 
+    }
+    return this.amount; // If no due date or past due date or archived, return the original amount.
+});
+
 const Budget = mongoose.model('Budget', BudgetSchema);
 
 module.exports = Budget;
+
