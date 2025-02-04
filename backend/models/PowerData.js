@@ -37,30 +37,50 @@ const PowerDataSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  unit: { // Added unit field (e.g., kWh, Watts)
+    type: String,
+    required: true,
+    enum: ['kWh', 'Watts', 'Amps'], // Example units
+    default: 'kWh'
+  },
+  cost: { // Added cost field (calculated or stored)
+      type: Number,
+      required: false // Cost might be derived
+  }
 });
 
-// Middleware to update the 'updatedAt' field before saving
 PowerDataSchema.pre('save', function (next) {
   this.updatedAt = Date.now();
   next();
 });
 
-// Static method to find power data by location
 PowerDataSchema.statics.findByLocation = function (userId, location) {
   return this.find({ userId, location });
 };
 
-// Static method to find anomalous power data
 PowerDataSchema.statics.findAnomalies = function (userId) {
   return this.find({ userId, isAnomaly: true });
 };
 
-// Instance method to mark power data as anomalous
 PowerDataSchema.methods.markAsAnomaly = function () {
   this.isAnomaly = true;
   return this.save();
 };
 
+// Virtual for calculating cost based on usage and a hypothetical rate (you might fetch this from a config or DB)
+PowerDataSchema.virtual('estimatedCost').get(function() {
+    const ratePerKwh = 0.15; // Example rate, replace with your actual rate
+    if (this.unit === 'kWh') {
+        return this.powerUsage * ratePerKwh;
+    } else if (this.unit === 'Watts') {
+        return (this.powerUsage / 1000) * ratePerKwh; // Convert watts to kWh
+    } else {
+        return null; // Handle other units as needed or return null
+    }
+});
+
+
 const PowerData = mongoose.model('PowerData', PowerDataSchema);
 
 module.exports = PowerData;
+
