@@ -1,4 +1,3 @@
-
 const { Budget } = require('../models');
 const { createError } = require('../utils/error');
 
@@ -149,6 +148,59 @@ class BudgetController {
       res.status(200).json({ budgets });
     } catch (error) {
       next(createError(500, error.message || 'Error fetching budgets by category'));
+    }
+  }
+
+  /**
+   * Get total budget amount for the logged-in user
+   */
+  static async getTotalBudgetAmount(req, res, next) {
+    try {
+      const { userId } = req.user;
+
+      if (!userId) {
+        return next(createError(401, 'Unauthorized'));
+      }
+
+      const totalAmount = await Budget.aggregate([
+        { $match: { userId } },
+        { $group: { _id: null, total: { $sum: '$amount' } } },
+      ]);
+
+      if (!totalAmount || totalAmount.length === 0) {
+        return next(createError(404, 'No budgets found for this user'));
+      }
+
+      res.status(200).json({ totalAmount: totalAmount[0].total });
+    } catch (error) {
+      next(createError(500, error.message || 'Error calculating total budget amount'));
+    }
+  }
+
+  /**
+   * Get budgets by date range
+   */
+  static async getBudgetsByDateRange(req, res, next) {
+    try {
+      const { userId } = req.user;
+      const { startDate, endDate } = req.query;
+
+      if (!userId) {
+        return next(createError(401, 'Unauthorized'));
+      }
+
+      const budgets = await Budget.find({
+        userId,
+        createdAt: { $gte: new Date(startDate), $lte: new Date(endDate) },
+      }).sort({ createdAt: -1 });
+
+      if (!budgets || budgets.length === 0) {
+        return next(createError(404, 'No budgets found for this date range'));
+      }
+
+      res.status(200).json({ budgets });
+    } catch (error) {
+      next(createError(500, error.message || 'Error fetching budgets by date range'));
     }
   }
 }
