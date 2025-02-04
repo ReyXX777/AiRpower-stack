@@ -176,6 +176,57 @@ class DataController {
       next(createError(500, error.message || 'Error archiving data entry'));
     }
   }
+
+  /**
+   * Get archived data entries for the logged-in user
+   */
+  static async getArchivedData(req, res, next) {
+    try {
+      const { userId } = req.user;
+
+      if (!userId) {
+        return next(createError(401, 'Unauthorized'));
+      }
+
+      const archivedData = await Data.find({ userId, isArchived: true }).sort({ createdAt: -1 });
+
+      if (!archivedData || archivedData.length === 0) {
+        return next(createError(404, 'No archived data entries found'));
+      }
+
+      res.status(200).json({ data: archivedData });
+    } catch (error) {
+      next(createError(500, error.message || 'Error fetching archived data entries'));
+    }
+  }
+
+  /**
+   * Restore an archived data entry by ID
+   */
+  static async restoreData(req, res, next) {
+    try {
+      const { dataId } = req.params;
+      const { userId } = req.user;
+
+      if (!userId) {
+        return next(createError(401, 'Unauthorized'));
+      }
+
+      const restoredData = await Data.findOneAndUpdate(
+        { _id: dataId, userId },
+        { isArchived: false },
+        { new: true }
+      );
+
+      if (!restoredData) {
+        return next(createError(404, 'Data entry not found'));
+      }
+
+      res.status(200).json({ message: 'Data restored successfully', data: restoredData });
+    } catch (error) {
+      next(createError(500, error.message || 'Error restoring data entry'));
+    }
+  }
 }
 
 module.exports = DataController;
